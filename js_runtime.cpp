@@ -20,16 +20,14 @@
 
 using namespace std;
 
-// ================================================================
 // FORWARD DECLARATIONS
-// ================================================================
+
 struct JSVal; using JV = shared_ptr<JSVal>;
 struct Env;   using EP = shared_ptr<Env>;
 struct Node;  using NP = shared_ptr<Node>;
 
-// ================================================================
 // NUMBER → STRING  (matches JavaScript's Number.prototype.toString)
-// ================================================================
+
 static string numToStr(double n) {
     if (isnan(n))  return "NaN";
     if (isinf(n))  return n > 0 ? "Infinity" : "-Infinity";
@@ -75,9 +73,8 @@ static double parseNumStr(const string& raw) {
     return numeric_limits<double>::quiet_NaN();
 }
 
-// ================================================================
 // TOKEN TYPES
-// ================================================================
+
 enum class TT {
     NUM,STR,BOOL,NIL,UNDEF,TMPL,ID,
     LET,CONST,VAR,FN,RET,IF,ELSE,WHILE,FOR,DO,
@@ -95,9 +92,8 @@ enum class TT {
 
 struct Tok { TT t; string v; int ln; };
 
-// ================================================================
 // LEXER
-// ================================================================
+
 class Lexer {
     string src; size_t p = 0; int ln = 1;
     char c()  const { return p < src.size() ? src[p]     : 0; }
@@ -251,9 +247,9 @@ public:
     }
 };
 
-// ================================================================
+
 // AST NODE TYPES
-// ================================================================
+
 enum class NT {
     Prog, Block,
     VDecl, FDecl, Ret, Brk, Ctn, Throw, Try,
@@ -278,9 +274,8 @@ struct Node {
 };
 static NP mkN(NT t) { return make_shared<Node>(t); }
 
-// ================================================================
 // JS VALUE
-// ================================================================
+
 enum class JT { Undef, Null, Bool, Num, Str, Obj, Arr, Fn };
 
 struct JsFn {
@@ -315,7 +310,7 @@ struct JSVal {
         }
     }
 
-    // ── factories ──────────────────────────────────────────────
+    // ── factories 
     static JV undef() { return make_shared<JSVal>(); }
     static JV null_() { auto v=make_shared<JSVal>(); v->type=JT::Null; return v; }
     static JV bl(bool b_) {
@@ -364,9 +359,8 @@ struct JSVal {
     }
 };
 
-// ================================================================
 // VALUE CONVERSIONS (declared before use)
-// ================================================================
+
 static string jsStr(JV v);
 static double jsNum(JV v);
 
@@ -456,9 +450,7 @@ static bool jsStrictEq(JV a, JV b) {
     }
 }
 
-// ================================================================
 // ENVIRONMENT
-// ================================================================
 struct Env {
     unordered_map<string,JV>   vars;
     unordered_map<string,bool> consts;
@@ -492,9 +484,9 @@ struct Env {
 };
 static EP mkEnv(EP p=nullptr) { return make_shared<Env>(p); }
 
-// ================================================================
+// 
 // PARSER
-// ================================================================
+
 class Parser {
     vector<Tok> toks; size_t p=0;
 
@@ -1019,9 +1011,7 @@ public:
     }
 };
 
-// ================================================================
 // INTERPRETER — control-flow signals via exceptions
-// ================================================================
 struct RetSig  { JV val; };
 struct BrkSig  {};
 struct CtnSig  {};
@@ -2716,9 +2706,8 @@ public:
     }
 };
 
-// ================================================================
 // READ HELPERS
-// ================================================================
+
 static string readFile(const string& path) {
     ifstream f(path, ios::binary);
     if(!f.is_open()) throw runtime_error("Cannot open file: "+path);
@@ -2728,9 +2717,8 @@ static string readStdin() {
     ostringstream ss; ss<<cin.rdbuf(); return ss.str();
 }
 
-// ================================================================
 // MAIN
-// ================================================================
+
 int main(int argc, char* argv[]) {
     string code;
     if(argc==1) {
